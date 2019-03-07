@@ -65,6 +65,7 @@ workflows:
             branches:
               only: master
       - publish-latest:
+          context: dockerhub
           requires:
             - build
           filters:
@@ -79,6 +80,7 @@ workflows:
             branches:
               ignore: /.*/
       - publish-tag:
+          context: dockerhub
           requires:
             - build
           filters:
