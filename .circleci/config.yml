@@ -21,7 +21,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - . # allofit
+            - ./image.tar
   publish-latest:
     executor: docker-publisher
     steps:
@@ -60,8 +60,7 @@ jobs:
     docker:
       - image: node:latest
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
+      - checkout
       - run:
           name: Install and configure dependencies
           command: |
