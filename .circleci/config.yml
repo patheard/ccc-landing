@@ -21,7 +21,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./image.tar
+            - . # allofit
   publish-latest:
     executor: docker-publisher
     steps:
@@ -56,6 +56,23 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
+  deploy:
+      executor: docker-publisher
+      steps:
+        - attach_workspace:
+            at: /tmp/workspace
+        - run:
+            name: Install and configure dependencies
+            command: |
+              npm install -g --silent gh-pages@2.0.1
+              git config user.email "ci-build@fullahead.org"
+              git config user.name "ci-build"
+        - add_ssh_keys:
+            fingerprints:
+              - "da:d9:45:63:5f:70:37:a0:9d:fa:b2:51:18:7f:a6:52"
+        - run:
+            name: Deploy to gh-pages
+            command: gh-pages --message "[skip ci] gh-pages update" --dist .            
 workflows:
   version: 2
   build-master:
@@ -71,6 +88,12 @@ workflows:
           filters:
             branches:
               only: master
+      - deploy:
+          requires:
+            - publish-latest
+          filters:
+            branches:
+              only: master      
   build-tags:
     jobs:
       - build:
